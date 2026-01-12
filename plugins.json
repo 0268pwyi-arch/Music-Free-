@@ -1,10 +1,10 @@
 [
   {
-    "platform": "CNMusicVideo",
-    "name": "中国音乐+视频音频聚合",
+    "platform": "CNMusicVideoAll",
+    "name": "全网音乐 + 视频音频聚合",
     "version": "1.0.0",
     "js": "plugin.js",
-    "description": "聚合国内主流音乐和主流视频平台音频搜索与播放插件",
-    "author": "YourName"
+    "description": "聚合国内主流音乐平台和视频音频平台的搜索与播放插件（网易云/QQ/酷狗/酷我/B站等）",
+    "author": "纯人机"
   }
 ]
