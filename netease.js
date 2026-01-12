@@ -1,46 +1,40 @@
 /**
- * MusicFree 插件 — 网易云音乐
- * 支持：搜索 / 播放 / 歌词 / 歌单
+ * 网易云音乐插件
+ * 支持：搜索 / 播放 / 歌词 / 导入歌单
  */
+
 module.exports = {
   platform: "netease",
   version: "1.0.0",
   author: "ChatGPT",
 
   async search(query, page = 1) {
-    const kw = encodeURIComponent(query);
-    let results = [];
-
+    const results = [];
     try {
-      const res = await fetch(
-        `https://api2.wer.plus/api/wyysearch?keywords=${kw}&limit=30`
-      );
+      const kw = encodeURIComponent(query);
+      const res = await fetch(`https://api2.wer.plus/api/wyysearch?keywords=${kw}&limit=30`);
       const j = await res.json();
       if (j && j.result && j.result.songs) {
         j.result.songs.forEach(item => {
           results.push({
             id: `netease_${item.id}`,
             name: item.name,
-            artist: item.artists ? item.artists.map(a => a.name).join(", ") : "",
-            album: item.album ? item.album.name : "",
-            duration: item.duration || 0,
-            type: "music"
+            artist: item.artists.map(a => a.name).join(", "),
+            album: item.album.name,
+            duration: item.duration
           });
         });
       }
     } catch (e) {}
-
     return { list: results, hasMore: false };
   },
 
   async getMediaSource(item) {
     try {
       const id = item.id.replace("netease_", "");
-      const res = await fetch(
-        `https://api2.wer.plus/api/wyyurl?id=${id}`
-      );
+      const res = await fetch(`https://api2.wer.plus/api/wyyurl?id=${id}`);
       const j = await res.json();
-      return { url: j.data && j.data.url };
+      return { url: j.data.url || null };
     } catch (e) {
       return { url: null };
     }
@@ -49,9 +43,7 @@ module.exports = {
   async getLyric(item) {
     try {
       const id = item.id.replace("netease_", "");
-      const res = await fetch(
-        `https://music.163.com/api/song/lyric?os=pc&id=${id}`
-      );
+      const res = await fetch(`https://music.163.com/api/song/lyric?id=${id}&lv=1&kv=1&tv=-1`);
       const j = await res.json();
       return { lyric: j.lrc ? j.lrc.lyric : "" };
     } catch (e) {
@@ -59,13 +51,10 @@ module.exports = {
     }
   },
 
-  async getPlaylist(id) {
+  async importPlaylist(url) {
     try {
-      const res = await fetch(
-        `https://api.liguangchun.cn/v7/music/netEase?url=${encodeURIComponent(
-          id
-        )}`
-      );
+      const enc = encodeURIComponent(url);
+      const res = await fetch(`https://api.liguangchun.cn/v7/music/netEase?url=${enc}`);
       const j = await res.json();
       return j.playlist || [];
     } catch (e) {
